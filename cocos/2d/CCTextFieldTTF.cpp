@@ -1,6 +1,7 @@
 /****************************************************************************
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2017 Chukong Technologies Inc.
+Copyright (c) 2013-2016 Chukong Technologies Inc.
+Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 http://www.cocos2d-x.org
 
@@ -244,7 +245,7 @@ void TextFieldTTF::insertText(const char * text, size_t len)
     std::string insert(text, len);
 
     // insert \n means input end
-    int pos = static_cast<int>(insert.find((char)TextFormatter::NewLine));
+    int pos = static_cast<int>(insert.find(StringUtils::AsciiCharacters::NewLine));
     if ((int)insert.npos != pos)
     {
         len = pos;
@@ -571,7 +572,7 @@ void TextFieldTTF::makeStringSupportCursor(std::string& displayText)
         {
             // \b - Next char not change x position
             if (_currentLabelType == LabelType::TTF || _currentLabelType == LabelType::BMFONT)
-                displayText.push_back((char) TextFormatter::NextCharNoChangeX);
+                displayText.push_back(StringUtils::AsciiCharacters::NextCharNoChangeX);
             displayText.push_back(_cursorChar);
         }
         else
@@ -587,7 +588,7 @@ void TextFieldTTF::makeStringSupportCursor(std::string& displayText)
             std::string cursorChar;
             // \b - Next char not change x position
             if (_currentLabelType == LabelType::TTF || _currentLabelType == LabelType::BMFONT)
-                cursorChar.push_back((char)TextFormatter::NextCharNoChangeX);
+                cursorChar.push_back(StringUtils::AsciiCharacters::NextCharNoChangeX);
             cursorChar.push_back(_cursorChar);
             stringUTF8.insert(_cursorPosition, cursorChar);
 

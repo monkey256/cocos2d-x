@@ -1,6 +1,7 @@
 /****************************************************************************
  Copyright (c) 2014 cocos2d-x.org
- Copyright (c) 2014-2017 Chukong Technologies Inc.
+ Copyright (c) 2014-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -38,6 +39,21 @@
 NS_CC_BEGIN
 
 namespace StringUtils {
+
+namespace UnicodeCharacters {
+    const char32_t NewLine                = 0x000A; // 10
+    const char32_t CarriageReturn         = 0x000D; // 13
+    const char32_t NextCharNoChangeX      = 0x0008; // 8
+    const char32_t Space                  = 0x0020; // 32
+    const char32_t NoBreakSpace           = 0x00A0; // 160
+}
+
+namespace AsciiCharacters {
+    const char NewLine                    = '\n';
+    const char CarriageReturn             = '\r';
+    const char NextCharNoChangeX          = '\b';
+    const char Space                      = ' ';
+}
 
 template<typename T>
 std::string toString(T arg)

@@ -1,6 +1,7 @@
 /****************************************************************************
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2017 Chukong Technologies Inc.
+Copyright (c) 2013-2016 Chukong Technologies Inc.
+Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 http://www.cocos2d-x.org
 
@@ -490,22 +491,21 @@ bool UserDefault::createXMLFile()
     }  
     tinyxml2::XMLDeclaration *pDeclaration = pDoc->NewDeclaration(nullptr);  
     if (nullptr==pDeclaration)  
-    {  
+    {
+        delete pDoc;
         return false;  
     }  
     pDoc->LinkEndChild(pDeclaration); 
     tinyxml2::XMLElement *pRootEle = pDoc->NewElement(USERDEFAULT_ROOT_NAME);  
     if (nullptr==pRootEle)  
-    {  
+    {
+        delete pDoc;
         return false;  
     }  
     pDoc->LinkEndChild(pRootEle);  
     bRet = tinyxml2::XML_SUCCESS == pDoc->SaveFile(FileUtils::getInstance()->getSuitableFOpen(_filePath).c_str());
 
-    if(pDoc)
-    {
-        delete pDoc;
-    }
+    delete pDoc;
 
     return bRet;
 }

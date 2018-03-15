@@ -9,26 +9,11 @@ HOST_NAME=""
 
 function install_android_ndk()
 {
-    mkdir -p $HOME/bin
-    cd $HOME/bin
-
-    # Download android ndk
-    if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-        HOST_NAME="darwin"
+    if [ "$BUILD_TARGET" == "android" ] || [ "$BUILD_TARGET" == "android_lua" ] ; then
+        python $COCOS2DX_ROOT/tools/appveyor-scripts/setup_android.py
     else
-        HOST_NAME="linux"
+        python $COCOS2DX_ROOT/tools/appveyor-scripts/setup_android.py --ndk_only
     fi
-
-    FILE_NAME=android-ndk-r16-${HOST_NAME}-x86_64.zip
-
-    # the NDK is used to generate binding codes, should use r16 when fix binding codes with r16
-    echo "Download ${FILE_NAME} ..."
-    curl -O https://dl.google.com/android/repository/${FILE_NAME}
-    echo "Decompress ${FILE_NAME} ..."
-    unzip ./${FILE_NAME} > /dev/null
-
-    # Rename ndk
-    mv android-ndk-r16 android-ndk
 }
 
 function install_linux_environment()
@@ -93,6 +78,23 @@ function install_python_module_for_osx()
     sudo -H pip install Cheetah
 }
 
+# fix error, URLError: <urlopen error [SSL: TLSV1_ALERT_PROTOCOL_VERSION]
+function upgrade_openssl_for_osx()
+{
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    brew update
+    brew upgrade openssl
+    ln -s /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib /usr/local/lib/
+    ln -s /usr/local/opt/openssl/lib/libssl.1.0.0.dylib /usr/local/lib/
+    ln -s /usr/local/opt/openssl/bin/openssl /usr/local/bin/openssl
+    echo "macOS SSL: `openssl version`"
+
+    brew unlink python
+    brew install python2
+    echo "python link: `ls -l /usr/local/bin/python`"
+    echo "python SSL: `python -c "import ssl; print ssl.OPENSSL_VERSION"`"
+}
+
 # set up environment according os and target
 function install_environement_for_pull_request()
 {
@@ -103,12 +105,13 @@ function install_environement_for_pull_request()
             install_linux_environment
         fi
 
-        if [ "$BUILD_TARGET" == "android" ]; then
+        if [ "$BUILD_TARGET" == "android" ] || [ "$BUILD_TARGET" == "android_lua" ] ; then
             install_android_environment
         fi
     fi
 
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+        upgrade_openssl_for_osx
         install_python_module_for_osx
     fi
 
@@ -120,14 +123,26 @@ function install_environement_for_pull_request()
 # should generate binding codes & cocos_files.json after merging
 function install_environement_for_after_merge()
 {
+    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+        upgrade_openssl_for_osx
+        install_python_module_for_osx
+    fi
+
     echo "Building merge commit ..."
     install_android_ndk
     download_deps
-
-    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-        install_python_module_for_osx
-    fi
 }
+
+if [ "$BUILD_TARGET" == "android_cocos_new_test" ]; then
+    python $COCOS2DX_ROOT/tools/appveyor-scripts/setup_android.py
+    exit 0
+fi
+
+if [ "$BUILD_TARGET" == "linux_cocos_new_test" ]; then
+    download_deps
+    install_linux_environment
+    exit 0
+fi
 
 # build pull request
 if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
